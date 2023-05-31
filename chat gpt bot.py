@@ -9,21 +9,24 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 openai.api_key = TOKEN_OPENAI
 
+dialog = []
+
 
 @dp.message_handler()
 async def handle_message(message: types.Message):
+    global dialog
     user_input = message.text
-    # Отправляем запрос на модель GPT-3.5 Turbo
+    dialog.append({"role": "user", "content": user_input})
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "Вы:"},
-            {"role": "user", "content": user_input},
+            {"role": "system", "content": "you are a helpful assistant"},
+            *dialog
         ]
     )
-    # Получаем ответ от модели
+
     answer = response.choices[0].message.content
-    # Отправляем ответ пользователю
+    dialog.append({"role": "assistant", "content": answer})
     await message.reply(answer)
 
 
