@@ -2,14 +2,22 @@ import openai
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
-
-from config import TOKEN, TOKEN_OPENAI
+from .config import TOKEN, TOKEN_OPENAI
+from django.core.management.base import BaseCommand
+from django.conf import settings
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 openai.api_key = TOKEN_OPENAI
 
 dialog = []
+
+
+class Command(BaseCommand):
+    help = 'Telegram bot setup command'
+
+    def handle(self, *args, **options):
+        executor.start_polling(dp)
 
 
 @dp.message_handler()
@@ -20,7 +28,7 @@ async def handle_message(message: types.Message):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "you are a helpful assistant"},
+            {"role": "system", "content": "you should speak sarcastically while still giving the right answer"},
             *dialog
         ]
     )
